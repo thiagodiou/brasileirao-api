@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +33,53 @@ public class ScrapingUtil {
 			LOGGER.info("Titulo da pagina: {}", title);
 
 			StatusPartida statusPartida = obtemStatusPartida(document);
-			String tempoPartida = obtemTempoPartida(document);
-			LOGGER.info(tempoPartida);
+			LOGGER.info(statusPartida.toString());
+
+			if (statusPartida != StatusPartida.PARTIDA_NAO_INICIADA) {
+				String tempoPartida = obtemTempoPartida(document);
+				LOGGER.info(tempoPartida);
+			}
+
+			String nomeEquipeCasa = recuperarNomeEquipeCasa(document);
+			LOGGER.info("Nome Equipe Casa: {}", nomeEquipeCasa);
+
+			String nomeEquipeVisitante = recuperarNomeEquipeVisitante(document);
+			LOGGER.info("Nome Equipe Visitante: {}", nomeEquipeVisitante);
+
+			String logoEquipeCasa = recuperarLogoEquipeCasa(document);
+			LOGGER.info("Url Logo Equipe Casa: {}", logoEquipeCasa);
+			
+			String logoEquipeVisitante = recuperarLogoEquipeVisitante(document);
+			LOGGER.info("Url Logo Equipe Visitante: {}", logoEquipeVisitante);
 		} catch (IOException e) {
 			LOGGER.error("ERRO AO TENTAR CONECTAR NO GOOGLE COM O JSOUP -> {}", e.getMessage());
 		}
 
 		return partida;
+	}
+
+	public String recuperarLogoEquipeCasa(Document document) {
+		Element elemento = document.selectFirst("div[class=imso_mh__first-tn-ed imso_mh__tnal-cont imso-tnol]");
+		String urlLogo = "https:" + elemento.select("img[class=imso_btl__mh-logo]").attr("src");
+		return urlLogo;
+	}
+	
+	public String recuperarLogoEquipeVisitante(Document document) {
+		Element elemento = document.selectFirst("div[class=imso_mh__second-tn-ed imso_mh__tnal-cont imso-tnol]");
+		String urlLogo = "https:" + elemento.select("img[class=imso_btl__mh-logo]").attr("src");
+		return urlLogo;
+	}
+
+	public String recuperarNomeEquipeVisitante(Document document) {
+		Element elemento = document.selectFirst("div[class=imso_mh__second-tn-ed imso_mh__tnal-cont imso-tnol]");
+		String nomeEquipe = elemento.select("span").text();
+		return nomeEquipe;
+	}
+
+	public String recuperarNomeEquipeCasa(Document document) {
+		Element elemento = document.selectFirst("div[class=imso_mh__first-tn-ed imso_mh__tnal-cont imso-tnol]");
+		String nomeEquipe = elemento.select("span").text();
+		return nomeEquipe;
 	}
 
 	public StatusPartida obtemStatusPartida(Document document) {
@@ -59,7 +100,6 @@ public class ScrapingUtil {
 		} else {
 			statusPartida = StatusPartida.PARTIDA_ENCERRADA;
 		}
-		LOGGER.info(statusPartida.toString());
 		return statusPartida;
 	}
 
