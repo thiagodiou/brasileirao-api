@@ -38,7 +38,7 @@ public class SwaggerConfig {
 		return new ApiInfoBuilder()
 				.title(API_TITULO)
 				.description(API_DESCRICAO)
-				.version(API_DESCRICAO)
+				.version(API_VERSAO)
 				.contact(new Contact(CONTATO_NOME, CONTATO_GITHUB, CONTATO_EMAIL))
 				.build();
 	}
